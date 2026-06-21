@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# opencode-ls.sh — list opencode processes inside tmux panes.
+#
+# Usage: opencode-ls.sh [session-substring [window-number]]
+#   session-substring  filter to sessions whose name contains this substring
+#   window-number      further filter to one window (requires session-substring)
+#
+# Env:
+#   OPENCODE_LS_PROC  process/cmdline substring to find (default: opencode)
+#
+# One row per matching pane's child process: the tmux target
+# (session:window.pane, ready for `tmux kill-pane`), its pid, and its cwd.
+# Sorted by target.
+#
+# Kill a row with `kill <pid>` (or `kill -9 <pid>` if hung), or
+# `tmux kill-pane -t <target>`.
+
+set -euo pipefail
+
+PROC="${OPENCODE_LS_PROC:-opencode}"
+SESSION_SUB="${1:-}"
+WINDOW="${2:-}"
+if [ -n "$WINDOW" ] && [ -z "$SESSION_SUB" ]; then
+  echo "opencode-ls.sh: a window filter requires a session substring" >&2
+  exit 2
+fi
+
+rows=""
+while IFS=$'\t' read -r session window pane pane_pid; do
+  [ -n "${pane_pid:-}" ] || continue
+  # filter by session substring, then exact window number
+  if [ -n "$SESSION_SUB" ]; then
+    case "$session" in *"$SESSION_SUB"*) ;; *) continue;; esac
+  fi
+  if [ -n "$WINDOW" ]; then
+    [ "$window" = "$WINDOW" ] || continue
+  fi
+  target="${session}:${window}.${pane}"
+  for pid in $(pgrep -P "$pane_pid" -f "$PROC" 2>/dev/null || true); do
+    cwd=$(readlink "/proc/$pid/cwd" 2>/dev/null || printf '?')
+    row=$(printf '%s\t%s\t%s' "$target" "$pid" "$cwd")
+    rows+="${rows:+$'\n'}$row"
+  done
+done < <(tmux list-panes -a -F $'#{session_name}\t#{window_index}\t#{pane_index}\t#{pane_pid}' 2>/dev/null || true)
+
+printf 'target\tpid\tcwd\n'
+[ -n "$rows" ] && printf '%s\n' "$rows" | sort -t$'\t' -k1,1

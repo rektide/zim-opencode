@@ -1,3 +1,11 @@
+0=${(%):-%x}
+
+# Put the module's bin/ on PATH so its scripts (e.g. opencode-ls.sh) are
+# runnable by name. Idempotent.
+_zo_bin="${0:A:h}/bin"
+[[ ":$PATH:" != *":$_zo_bin:"* ]] && export PATH="$_zo_bin:$PATH"
+unset _zo_bin
+
 # framing by-way-of zim-mise, passing in directory holding the script
 (( ${+commands[opencode]} )) && () {
   local command=${commands[opencode]}
