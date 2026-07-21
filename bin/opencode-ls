@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# opencode-ls.sh — list opencode processes inside tmux panes.
+# opencode-ls — list opencode processes inside tmux panes.
 #
-# Usage: opencode-ls.sh [session-substring [window-number]]
+# Usage: opencode-ls [session-substring [window-number]]
 #   session-substring  filter to sessions whose name contains this substring
 #   window-number      further filter to one window (requires session-substring)
 #
@@ -21,7 +21,7 @@ PROC="${OPENCODE_LS_PROC:-opencode}"
 SESSION_SUB="${1:-}"
 WINDOW="${2:-}"
 if [ -n "$WINDOW" ] && [ -z "$SESSION_SUB" ]; then
-  echo "opencode-ls.sh: a window filter requires a session substring" >&2
+  echo "opencode-ls: a window filter requires a session substring" >&2
   exit 2
 fi
 

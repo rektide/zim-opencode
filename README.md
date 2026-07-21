@@ -6,7 +6,7 @@ Three concerns live in this repo:
 
 - **[`auth.zsh`](auth.zsh)** — rotate one provider's account in opencode's `auth.json` across multiple identities (default: OpenAI). *Active; sourced on shell load.*
 - **[`init.zsh`](init.zsh)** — generate and cache zsh completions for the `opencode` binary, and put `bin/` on `PATH`. *Zimfw-style; dormant unless loaded via `zmodule`.*
-- **[`bin/opencode-ls.sh`](bin/opencode-ls.sh)** — list opencode processes running in tmux panes (target + pid + cwd), filterable by session/window. *Bash; on `PATH` via `init.zsh`.*
+- **[`bin/opencode-ls`](bin/opencode-ls)** — list opencode processes running in tmux panes (target + pid + cwd), filterable by session/window. *Bash; on `PATH` via `init.zsh`.*
 
 ## `auth.zsh` — provider-scoped account rotation
 
@@ -82,15 +82,15 @@ Loads on module import and, if `opencode` is in `$PATH`, writes yargs-based zsh 
 zmodule rektide/zim-opencode
 ```
 
-## `bin/opencode-ls.sh` — find opencode processes in tmux
+## `bin/opencode-ls` — find opencode processes in tmux
 
 Lists opencode processes running inside tmux panes — one row per match: the tmux target (`session:window.pane`, ready for `tmux kill-pane`), pid, and cwd (which project). Sorted by target. Filter by session substring, and optionally an exact window:
 
 ```sh
-opencode-ls.sh                       # all
-opencode-ls.sh comp                  # sessions whose name contains "comp"
-opencode-ls.sh compfuzor 6           # + exact window number
-OPENCODE_LS_PROC=node opencode-ls.sh # match a different process name
+opencode-ls                       # all
+opencode-ls comp                  # sessions whose name contains "comp"
+opencode-ls compfuzor 6           # + exact window number
+OPENCODE_LS_PROC=node opencode-ls # match a different process name
 ```
 
 A window filter requires a session substring. Kill a row with `kill <pid>` (or `kill -9` if hung), or `tmux kill-pane -t <target>`. Bash, not zsh-specific; `init.zsh` puts `bin/` on `PATH` in zsh shells — symlink into `~/.local/bin` if you want it in bash too.

@@ -1,6 +1,6 @@
 0=${(%):-%x}
 
-# Put the module's bin/ on PATH so its scripts (e.g. opencode-ls.sh) are
+# Put the module's bin/ on PATH so its scripts (e.g. opencode-ls) are
 # runnable by name. Idempotent.
 _zo_bin="${0:A:h}/bin"
 [[ ":$PATH:" != *":$_zo_bin:"* ]] && export PATH="$_zo_bin:$PATH"
